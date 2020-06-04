@@ -31,3 +31,4 @@ https://docs.micropython.org/en/latest/esp8266/tutorial/intro.html
 
     #### Copy to board
     cp ./main.py /pyboard/
+    cp ./data.json /pyboard/
