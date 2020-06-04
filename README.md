@@ -32,3 +32,9 @@ https://docs.micropython.org/en/latest/esp8266/tutorial/intro.html
     #### Copy to board
     cp ./main.py /pyboard/
     cp ./data.json /pyboard/
+    
+## WiFi
+
+- The ESSID is of the form MicroPython-xxxxxx where the x’s are replaced with part of the MAC address of your device (so will be the same everytime, and most likely different for all ESP8266 chips). 
+- The password for the WiFi is micropythoN (note the upper-case N).
+- Its IP address will be 192.168.4.1 once you connect to its network. WiFi configuration will be discussed in more detail later in the tutorial.
