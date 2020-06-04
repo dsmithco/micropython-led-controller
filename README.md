@@ -12,22 +12,22 @@ source env/bin/activate
 ### Setup NodeMCU Board
 Download firmware http://micropython.org/download/esp8266/
 
-Plugin NodeMCU
+#### Plugin NodeMCU
 
-Get USB location
+#### Get USB location
 ls /dev/cu.*
 
-Flash
+#### Flash
 esptool.py --port /dev/cu.SLAB_USBtoUART erase_flash
 
-Update Firmware
+#### Update Firmware
 esptool.py --port /dev/cu.SLAB_USBtoUART --baud 460800 write_flash --flash_size=detect 0 ~/Downloads/esp8266-20191220-v1.12.bin
 
-Connect
+#### Connect
 screen /dev/cu.SLAB_USBtoUART 115200
 
-Connect to folder
+#### Connect to folder
 rshell -p /dev/cu.SLAB_USBtoUART
 
-Copy to board
+#### Copy to board
 cp ./main.py /pyboard/
