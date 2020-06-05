@@ -29,9 +29,18 @@ https://docs.micropython.org/en/latest/esp8266/tutorial/intro.html
     #### Connect to folder
     rshell -p /dev/cu.SLAB_USBtoUART
 
+    #### Download Tinyweb and put in /pyboard/tinyweb
+    #### Download to project ./tinyweb https://github.com/belyalov/tinyweb/blob/master/tinyweb
+
+    mkdir /pyboard/tinyweb
+    cp ./tinyweb/* /pyboard/tinyweb/
+
     #### Copy to board
     cp ./main.py /pyboard/
     cp ./data.json /pyboard/
+
+    #### View logs
+    repl
     
 ## WiFi
 

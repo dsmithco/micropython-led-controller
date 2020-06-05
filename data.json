@@ -1,30 +1,30 @@
 {
     "name": "ReThink LED Controller",
     "password": "ReThink",
-    "led_length": 51,
+    "led_length": 5,
     "loop_mode": "continuous",
-    "initial_pause_ms": 1000,
+    "initial_pause_ms": 2,
     "steps":[
         {
             "color": [0,0,128],
-            "pause_ms": 2000,
+            "pause_ms": 1,
             "pause_style": "solid",
             "transition_style": "fade",
-            "transition_ms": 4000
+            "transition_ms": 2
         },
         {
             "color": [0,128,0],
-            "pause_ms": 2000,
+            "pause_ms": 1,
             "pause_style": "solid",
             "transition_style": "fade",
-            "transition_ms": 4000
+            "transition_ms": 2
         },
         {
             "color": [128,0,0],
-            "pause_ms": 2000,
+            "pause_ms": 1,
             "pause_style": "solid",
             "transition_style": "fade",
-            "transition_ms": 4000
+            "transition_ms": 1
         }
 
     ]
