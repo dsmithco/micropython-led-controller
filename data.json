@@ -3,28 +3,28 @@
     "password": "ReThink",
     "led_length": 5,
     "loop_mode": "continuous",
-    "initial_pause_ms": 100,
+    "initial_pause_ms": 10000,
     "steps":[
         {
             "color": [0,0,128],
-            "pause_ms": 20,
+            "pause_ms": 2000,
             "pause_style": "solid",
             "transition_style": "fade",
-            "transition_ms": 10
+            "transition_ms": 1000
         },
         {
             "color": [0,128,0],
-            "pause_ms": 20,
+            "pause_ms": 2000,
             "pause_style": "solid",
             "transition_style": "fade",
-            "transition_ms": 10
+            "transition_ms": 1000
         },
         {
             "color": [128,0,0],
-            "pause_ms": 10,
+            "pause_ms": 1000,
             "pause_style": "solid",
             "transition_style": "fade",
-            "transition_ms": 10
+            "transition_ms": 1000
         }
 
     ]
