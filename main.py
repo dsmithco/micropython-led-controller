@@ -2,7 +2,6 @@ import uasyncio as asyncio
 import machine, neopixel, time
 import ujson
 
-
 def get_data(data_file='data.json'):
     f = open(data_file, "r")
     data = ujson.loads(f.read())
@@ -74,60 +73,28 @@ async def toggle_onboard_led(state='on'):
 
 
 
+@asyncio.coroutine
+async def serve(reader, writer):
+    print(reader, writer)
+    print("================")
+    # print((yield from reader.read()))
 
-
-# @asyncio.coroutine
-# def serve(reader, writer):
-#     print(reader, writer)
-#     print("================")
-#     print((yield from reader.read()))
-#     yield from writer.awrite("HTTP/1.0 200 OK\r\n\r\nHello You. " + str(reader) + "\r\n")
-#     print("After response write")
-#     yield from writer.aclose()
-#     print("Finished processing request")
-
-
-
-def start_web():
-    import tinyweb
-
-    # Create web server application
-    app = tinyweb.webserver()
-
-    # Index page
-    @app.route('/')
-    async def index(request, response):
-        # Start HTTP response with content-type text/html
-        await response.start_html()
-        # Send actual HTML page
-        await response.send('<html><body><h1>Hello, world! (<a href="/table">table</a>)</h1></html>\n')
-
-    # Another one, more complicated page
-    @app.route('/table')
-    async def table(request, response):
-        # Start HTTP response with content-type text/html
-        await response.start_html()
-        await response.send('<html><body><h1>Simple table</h1>'
-                            '<table border=1 width=400>'
-                            '<tr><td>Name</td><td>Some Value</td></tr>')
-        for i in range(10):
-            await response.send('<tr><td>Name{}</td><td>Value{}</td></tr>'.format(i, i))
-        await response.send('</table>'
-                            '</html>')
-
-
-    app.run(host='0.0.0.0', port=8081)
-
-
-
-
+    res = yield from reader.read()
+    res = str(res).replace("b'","")
+    res = str(res).replace("'","")
+    resArr = res.split(' ')
+    method = resArr[0]
+    path = resArr[1]
+    yield from writer.awrite("HTTP/1.0 200 OK\r\n\r\nHello You. " + method + " " + str(path) + "\r\n")
+    print("After response write")
+    yield from writer.aclose()
+    print("Finished processing request")
 
 
 loop = asyncio.get_event_loop()
 loop.create_task(startup())
 loop.create_task(toggle_onboard_led())
-loop.create_task(start_web())
-# loop.call_soon(asyncio.start_server(serve, "0.0.0.0", 80))
+loop.create_task(asyncio.start_server(serve, "0.0.0.0", 80))
 loop.run_forever()
 loop.close()
 
