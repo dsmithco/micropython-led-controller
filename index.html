@@ -1,22 +1,141 @@
 <html>
 <head> 
     <title>ReThink LED Controller</title> 
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
     <link rel="icon" href="data:,"> 
+    <link rel="stylesheet" href="min.css">
     <style>
-        html{font-family: Helvetica; display:inline-block; margin: 0px auto; text-align: center;}
-        h1{color: #0F3376; padding: 2vh;}p{font-size: 1.5rem;}
-        .button{display: inline-block; background-color: #e7bd3b; border: none; border-radius: 4px; color: white; padding: 16px 40px; text-decoration: none; font-size: 30px; margin: 2px; cursor: pointer;}
-        .button2{background-color: #4286f4;}
+        .stretch{
+            width: 100% !important;
+            display: block; 
+        }
+        .smooth {
+            border-radius: 3px;
+            background: #fff;
+        }
+        .color {
+            height: 27px;
+            border-radius: 6px;
+            padding: 0;
+            border: 0;
+            margin-bottom: 19px;
+            top: 4px;
+            position: relative;
+        }
     </style>
 </head>
 <body> 
-    <h1>ReThink LED Controller!</h1> 
-    <p>
-        <a href="/?led=on"><button class="button">ON</button></a>
-    </p>
-    <p>
-        <a href="/?led=off"><button class="button button2">OFF</button></a>
-    </p>
-  </body>
+    <div class="container" style="padding-top:.5em;">
+        <h3><span id="name_label"></span></h3> 
+        <form action="/" method="post" id='form'>
+            <p>
+                <div id="form_div"></div>
+                <div id="steps_div"></div>
+                <button type='submit' class='btn btn-sm btn-a'>Submit</button>
+            </p>    
+        </form>
+    </div>
+</body>
+    <script>
+        var data = {}
+
+        function update_data(){
+            console.log(event.target.name)
+            console.log(event.target.value)
+            try{
+                eval(event.target.name + '= ' + event.target.value + '');
+            }catch{
+                eval(event.target.name + '= "' + event.target.value + '"');
+            }
+            console.log(data);
+        }
+
+        function get_data(){
+            let request = new XMLHttpRequest();
+            request.open('GET', '/data.json', true);
+            request.onload = function() {
+                if (request.status >= 200 && request.status < 400) {
+                    // Success!
+                    data = JSON.parse(request.responseText);
+                    form_template(data)             
+                } else {
+                    // We reached our target server, but it returned an error
+                }
+            };
+            request.onerror = function() {
+            // There was a connection error of some sort
+            };
+            request.send();
+        }
+
+        function form_template(data){
+            let container = document.getElementById("form_div")
+            container.innerHTML = `
+                <span>Name</span><br/>
+                <input type="text" onchange="update_data()" name="data.name" value="${data.name}" id="name" class="smooth stretch"/>
+                <br/>
+                <span>SSID</span><br/>
+                <input type="text" onchange="update_data()" name="data.ssid" value="${data.ssid}" id="ssid" class="smooth stretch"/>
+                <br/>
+                <span>Password</span><br/>
+                <input type="text" onchange="update_data()" name="data.password" value="${data.password}" id="password" class="smooth stretch"/>
+                <br/>
+                <span>LEDs</span><br/>
+                <input type="text" onchange="update_data()" name="data.led_length" value="${data.led_length}" id="led_length" class="smooth stretch"/>
+                <br/>
+                <span>Init Pause</span><br/>
+                <input type="text" onchange="update_data()" name="data.initial_pause_ms" value="${data.initial_pause_ms}" id="initial_pause_ms" class="smooth stretch"/>
+                <br/>
+            `
+            steps_template(data.steps)
+        }
+
+        function steps_template(steps){
+            var steps_div = document.getElementById('steps_div')
+            steps.map((step, idx)=>
+                steps_div.appendChild(step_template(step, idx))
+            )
+        }
+
+        function step_template(step,idx){
+            let container = document.createElement("div");
+            container.innerHTML = `
+                <div style="padding: 20px 20px 10px; border-radius: 3px; background-color: #eee; margin-bottom: 15px;">
+                    <span>Pause</span>
+                    <input onchange="update_data()" name="data.steps[${idx}]['pause_ms']" value="${step.pause_ms}" class="smooth stretch">
+                    <br/>
+                    <span>Color</span>
+                    <input onchange="update_data()" type="color" name="data.steps[${idx}]['color']" value="${step.color}" class="color">
+                    <br/>
+                    <span>Transition</span>
+                    <input onchange="update_data()" name="data.steps[${idx}]['transition_ms']" value="${step.transition_ms}" class="smooth stretch">
+                    <br/>
+                </div>
+            `;
+            return container
+        }
+
+        get_data();
+
+        var form = document.getElementById('form');
+
+        form.onsubmit = function (e) {
+            // stop the regular form submission
+            e.preventDefault();
+
+            // construct an HTTP request
+            var xhr = new XMLHttpRequest();
+
+            xhr.open(form.method, form.action, true);
+            xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+
+            // send the collected data as JSON
+            console.log(JSON.stringify(data))
+            xhr.send(JSON.stringify(data));
+
+            xhr.onloadend = function () {
+                // done
+            };
+        };
+    </script>
 </html>

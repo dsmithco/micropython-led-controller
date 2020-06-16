@@ -1,31 +1,31 @@
 {
     "name": "ReThink LED Controller",
-    "password": "ReThink",
+    "ssid": "ReThinkLED2",
+    "password": "Rethink44",
     "led_length": 5,
     "loop_mode": "continuous",
     "initial_pause_ms": 10000,
     "steps":[
         {
-            "color": [0,0,128],
+            "color": "#0000ff",
             "pause_ms": 2000,
             "pause_style": "solid",
             "transition_style": "fade",
             "transition_ms": 1000
         },
         {
-            "color": [0,128,0],
+            "color": "#00ff00",
             "pause_ms": 2000,
             "pause_style": "solid",
             "transition_style": "fade",
             "transition_ms": 1000
         },
         {
-            "color": [128,0,0],
+            "color": "#ff0000",
             "pause_ms": 1000,
             "pause_style": "solid",
             "transition_style": "fade",
             "transition_ms": 1000
         }
-
     ]
 }
