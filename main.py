@@ -72,7 +72,7 @@ async def run_steps(data, count=0):
             to_r = int(next_colors[1])
             to_b = int(next_colors[2])
             
-            frames = 30
+            frames = 255
             frames_delay = int(step['transition_ms']//frames) or 1
             for r in range(1, frames):
                 set_color([from_g + (r * (to_g - from_g)//frames), from_r + (r * (to_r - from_r)//frames), from_b + (r * (to_b - from_b)//frames)])
