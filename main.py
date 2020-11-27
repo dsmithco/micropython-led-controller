@@ -2,7 +2,6 @@ import uasyncio as asyncio
 import machine, neopixel, time
 import ujson
 
-
 def get_data(data_file='data.json'):
     f = open(data_file, "r")
     data = ujson.loads(f.read())
@@ -16,19 +15,15 @@ np = neopixel.NeoPixel(machine.Pin(0), data['led_length'])
 async def startup():
     await run_steps(data)
 
-
 def set_color(step1_color_arr):
     for n in range(np.n):
         np[n] = (int(step1_color_arr[0]), int(step1_color_arr[1]), int(step1_color_arr[2]))
     np.write()
 
 async def run_steps(data, count=0):
-    # Set initial color to black 
     set_color([0,0,0])
 
-    # Loop through the steps in the data object
     while True:
-        data = get_data()
         steps = data['steps']
         for i, step in enumerate(steps):
 
@@ -57,15 +52,10 @@ async def run_steps(data, count=0):
             except:
                 next_colors = [90,90,90]
 
-
-
-            # Loop through the colors in the array of rgb colors
             set_color(this_colors)
 
-            # Do the step pause
             await asyncio.sleep_ms(step['pause_ms'])
             
-            # Do the initial sleep only if this the very first time 
             if count == 0:
                 await asyncio.sleep_ms(data['initial_pause_ms'])
 
@@ -85,8 +75,6 @@ async def run_steps(data, count=0):
 
             count += 1
 
-
-# toggle the board led on or off
 async def toggle_onboard_led(state='on'):
     await asyncio.sleep(3)
 
@@ -98,9 +86,6 @@ async def toggle_onboard_led(state='on'):
     if state == 'off':
         led.on()
 
-
-
-# @asyncio.coroutine
 async def serve(reader, writer):
     while True:
         r = await reader.read(2048)
@@ -108,15 +93,13 @@ async def serve(reader, writer):
 
         if 'POST /' in res:
             error = False
-            data = res.split('\n')[-1]
+            serve_data = res.split('\n')[-1]
 
             try:
-                res_json = ujson.loads(data)
+                res_json = ujson.loads(serve_data)
                 if 'steps' not in res_json:
                     error = True
             except Exception as e:
-                print(data)
-                print(e)
                 error = True
                 res_json = ujson.dumps({})
                 continue
@@ -129,8 +112,8 @@ async def serve(reader, writer):
             await writer.awrite("HTTP/1.0 201 OK\r\n\r\n" + ujson.dumps(res_json) + "\r\n")
             await writer.aclose()
             if error == False:
-                # machine.softreset()
-                break
+                machine.reset()
+                return
             return
 
         if 'GET /data.json ' in res:
@@ -164,7 +147,6 @@ async def serve(reader, writer):
             await writer.awrite("HTTP/1.0 200 OK\r\n\r\n" + content + "\r\n")
             await writer.aclose()
             return
-
 
 loop = asyncio.get_event_loop()
 loop.create_task(startup())
