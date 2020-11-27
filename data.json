@@ -1,6 +1,6 @@
 {
     "name": "ReThink LED Controller",
-    "ssid": "ReThinkLED2",
+    "ssid": "ReThinkLED",
     "password": "Rethink44",
     "led_length": 5,
     "loop_mode": "continuous",

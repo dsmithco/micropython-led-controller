@@ -2,6 +2,7 @@ import uasyncio as asyncio
 import machine, neopixel, time
 import ujson
 
+
 def get_data(data_file='data.json'):
     f = open(data_file, "r")
     data = ujson.loads(f.read())
@@ -9,7 +10,7 @@ def get_data(data_file='data.json'):
     return data
 
 data = get_data()
-np = neopixel.NeoPixel(machine.Pin(4), data['led_length'])
+np = neopixel.NeoPixel(machine.Pin(0), data['led_length'])
 
 # Make some colors show up
 async def startup():
@@ -22,6 +23,9 @@ def set_color(step1_color_arr):
     np.write()
 
 async def run_steps(data, count=0):
+    # Set initial color to black 
+    set_color([0,0,0])
+
     # Loop through the steps in the data object
     while True:
         steps = data['steps']
@@ -95,75 +99,73 @@ async def toggle_onboard_led(state='on'):
 
 
 
-@asyncio.coroutine
-def serve(reader, writer):
-    r = yield from reader.read()
+# @asyncio.coroutine
+async def serve(reader, writer):
+    r = await reader.read(2048)
     res = r.decode('latin-1')
 
-    # reader.reset()
     if 'POST /' in res:
         error = False
-        # f = open('index.html', "r")
-        # content = f.read()
-        # f.close()
         data = res.split('\n')[-1]
 
-        # print('data', data)
         try:
             res_json = ujson.loads(data)
             if 'steps' not in res_json:
                 error = True
-        except:
+        except Exception as e:
+            print(data)
+            print(e)
             error = True
-            res_json = "{}"
+            res_json = ujson.dumps({})
 
-        if error == False:
+        if error == False and res_json and 'steps' in res_json:
             f = open('data.json', "w")
             f.write(ujson.dumps(res_json))
             f.close()
-            machine.reset()
 
-        yield from writer.awrite("HTTP/1.0 201 OK\r\n\r\n" + ujson.dumps(res_json) + "\r\n")
-        yield from writer.aclose()
+        await writer.awrite("HTTP/1.0 201 OK\r\n\r\n" + ujson.dumps(res_json) + "\r\n")
+        await writer.aclose()
+        if error == False:
+            machine.reset()
         return
 
     if 'GET /data.json ' in res:
         f = open('data.json', "r")
         content = f.read()
         f.close()
-        yield from writer.awrite("HTTP/1.0 200 OK\r\n\r\n" + content + "\r\n")
-        yield from writer.aclose()
+        await writer.awrite("HTTP/1.0 200 OK\r\n\r\n" + content + "\r\n")
+        await writer.aclose()
         return
 
     if 'GET /min.css ' in res:
         f = open('min.css', "r")
         content = f.read()
         f.close()
-        yield from writer.awrite("HTTP/1.0 200 OK\r\n\r\n" + content + "\r\n")
-        yield from writer.aclose()
+        await writer.awrite("HTTP/1.0 200 OK\r\n\r\n" + content + "\r\n")
+        await writer.aclose()
         return
 
     if 'GET /main.js ' in res:
         f = open('main.js', "r")
         content = f.read()
         f.close()
-        yield from writer.awrite("HTTP/1.0 200 OK\r\n\r\n" + content + "\r\n")
-        yield from writer.aclose()
+        await writer.awrite("HTTP/1.0 200 OK\r\n\r\n" + content + "\r\n")
+        await writer.aclose()
         return
 
     if 'GET / ' in res:
         f = open('index.html', "r")
         content = f.read()
         f.close()
-        yield from writer.awrite("HTTP/1.0 200 OK\r\n\r\n" + content + "\r\n")
-        yield from writer.aclose()
+        await writer.awrite("HTTP/1.0 200 OK\r\n\r\n" + content + "\r\n")
+        await writer.aclose()
         return
 
 
 loop = asyncio.get_event_loop()
 loop.create_task(startup())
 loop.create_task(toggle_onboard_led())
-loop.create_task(asyncio.start_server(serve, "0.0.0.0", 80, 10))
+loop.create_task(asyncio.start_server(serve, "0.0.0.0", 80))
 loop.run_forever()
 loop.close()
 

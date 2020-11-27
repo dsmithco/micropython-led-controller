@@ -1,4 +1,8 @@
 # This file is executed on every boot (including wake-boot from deepsleep)
+try:
+    import usocket as socket
+except:
+    import socket
 import esp, network
 esp.osdebug(None)
 import uos, machine
@@ -12,11 +16,4 @@ gc.collect()
 
 ap = network.WLAN(network.AP_IF)
 ap.active(True)
-
-f = open('data.json', "r")
-data = ujson.loads(f.read())
-f.close()
-ap.config(essid=data['ssid'], password=data['password'])
-
-
-
+ap.config(essid='ReThinkLED', password='Rethink44')
