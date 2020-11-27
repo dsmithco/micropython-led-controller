@@ -9,7 +9,7 @@ import uos, machine
 import gc
 import ujson
 gc.collect()
-gc.threshold(gc.mem_free() // 4 + gc.mem_alloc())
+# gc.threshold(gc.mem_free() // 4 + gc.mem_alloc())
 ap = network.WLAN(network.AP_IF)
 ap.active(True)
 ap.config(essid='ReThinkLED', password='Rethink44')

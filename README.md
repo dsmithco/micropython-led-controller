@@ -27,6 +27,9 @@ https://docs.micropython.org/en/latest/esp8266/tutorial/intro.html
 
     #### Update Firmware
     esptool.py --port /dev/cu.SLAB_USBtoUART --baud 460800 write_flash --flash_size=detect 0 ~/Downloads/esp8266-20200911-v1.13.bin
+    esptool.py --port /dev/cu.SLAB_USBtoUART --baud 460800 write_flash --flash_size=detect 0 ~/Downloads/esp8266-512k-20200902-v1.13.bin
+
+    esp8266-20190529-v1.11.bin
     esptool.py --port /dev/cu.SLAB_USBtoUART --baud 460800 write_flash --flash_size=detect 0 ~/Downloads/esp8266-20200421-v1.12-388-g388d419ba.bin
 
     # OR 

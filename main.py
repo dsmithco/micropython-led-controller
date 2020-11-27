@@ -86,71 +86,77 @@ async def toggle_onboard_led(state='on'):
     if state == 'off':
         led.on()
 
+
+
 async def serve(reader, writer):
-    while True:
-        r = await reader.read(2048)
-        res = r.decode('latin-1')
+    await asyncio.sleep_ms(1000)
+    r = await reader.read(-1)
+    res = r.decode('latin-1')
 
-        if 'POST /' in res:
-            error = False
-            serve_data = res.split('\n')[-1]
+    if 'POST /' in res:
+        error = False
+        serve_data = res.split('\n')[-1]
 
-            try:
-                res_json = ujson.loads(serve_data)
-                if 'steps' not in res_json:
-                    error = True
-            except Exception as e:
+        try:
+            res_json = ujson.loads(serve_data)
+            if 'steps' not in res_json:
                 error = True
-                res_json = ujson.dumps({})
-                continue
-
-            if error == False and res_json and 'steps' in res_json:
-                f = open('data.json', "w")
-                f.write(ujson.dumps(res_json))
-                f.close()
-
-            await writer.awrite("HTTP/1.0 201 OK\r\n\r\n" + ujson.dumps(res_json) + "\r\n")
+        except Exception as e:
+            error = True
+            print("error: ", e)
+            res_json = ujson.dumps({})
+            await writer.awrite("HTTP/1.0 400 OK\r\n\r\n" + "whoops" + "\r\n")
             await writer.aclose()
-            if error == False:
-                machine.reset()
-                return
             return
 
-        if 'GET /data.json ' in res:
-            f = open('data.json', "r")
-            content = f.read()
+        if error == False and res_json and 'steps' in res_json:
+            f = open('data.json', "w")
+            f.write(ujson.dumps(res_json))
             f.close()
-            await writer.awrite("HTTP/1.0 200 OK\r\n\r\n" + content + "\r\n")
-            await writer.aclose()
-            return
 
-        if 'GET /min.css ' in res:
-            f = open('min.css', "r")
-            content = f.read()
-            f.close()
-            await writer.awrite("HTTP/1.0 200 OK\r\n\r\n" + content + "\r\n")
-            await writer.aclose()
+        await writer.awrite("HTTP/1.0 201 OK\r\n\r\n" + ujson.dumps(res_json) + "\r\n")
+        await writer.aclose()
+        if error == False:
+            # machine.reset()
             return
+        return
 
-        if 'GET /main.js ' in res:
-            f = open('main.js', "r")
-            content = f.read()
-            f.close()
-            await writer.awrite("HTTP/1.0 200 OK\r\n\r\n" + content + "\r\n")
-            await writer.aclose()
-            return
+    if 'GET /data.json ' in res:
+        f = open('data.json', "r")
+        content = f.read()
+        f.close()
+        await writer.awrite("HTTP/1.0 200 OK\r\n\r\n" + content + "\r\n")
+        await writer.aclose()
+        return
 
-        if 'GET / ' in res:
-            f = open('index.html', "r")
-            content = f.read()
-            f.close()
-            await writer.awrite("HTTP/1.0 200 OK\r\n\r\n" + content + "\r\n")
-            await writer.aclose()
-            return
+    if 'GET /min.css ' in res:
+        f = open('min.css', "r")
+        content = f.read()
+        f.close()
+        await writer.awrite("HTTP/1.0 200 OK\r\n\r\n" + content + "\r\n")
+        await writer.aclose()
+        return
+
+    if 'GET /main.js ' in res:
+        f = open('main.js', "r")
+        content = f.read()
+        f.close()
+        await writer.awrite("HTTP/1.0 200 OK\r\n\r\n" + content + "\r\n")
+        await writer.aclose()
+        return
+
+    if 'GET / ' in res:
+        f = open('index.html', "r")
+        content = f.read()
+        f.close()
+        await writer.awrite("HTTP/1.0 200 OK\r\n\r\n" + content + "\r\n")
+        await writer.aclose()
+        return
+
 
 loop = asyncio.get_event_loop()
 loop.create_task(startup())
-loop.create_task(toggle_onboard_led())
+# loop.create_task(toggle_onboard_led())
 loop.create_task(asyncio.start_server(serve, "0.0.0.0", 80))
 loop.run_forever()
 loop.close()
