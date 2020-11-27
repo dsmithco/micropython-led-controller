@@ -101,65 +101,67 @@ async def toggle_onboard_led(state='on'):
 
 # @asyncio.coroutine
 async def serve(reader, writer):
-    r = await reader.read(2048)
-    res = r.decode('latin-1')
+    while True:
+        r = await reader.read(2048)
+        res = r.decode('latin-1')
 
-    if 'POST /' in res:
-        error = False
-        data = res.split('\n')[-1]
+        if 'POST /' in res:
+            error = False
+            data = res.split('\n')[-1]
 
-        try:
-            res_json = ujson.loads(data)
-            if 'steps' not in res_json:
+            try:
+                res_json = ujson.loads(data)
+                if 'steps' not in res_json:
+                    error = True
+            except Exception as e:
+                print(data)
+                print(e)
                 error = True
-        except Exception as e:
-            print(data)
-            print(e)
-            error = True
-            res_json = ujson.dumps({})
+                res_json = ujson.dumps({})
+                continue
 
-        if error == False and res_json and 'steps' in res_json:
-            f = open('data.json', "w")
-            f.write(ujson.dumps(res_json))
+            if error == False and res_json and 'steps' in res_json:
+                f = open('data.json', "w")
+                f.write(ujson.dumps(res_json))
+                f.close()
+
+            await writer.awrite("HTTP/1.0 201 OK\r\n\r\n" + ujson.dumps(res_json) + "\r\n")
+            await writer.aclose()
+            if error == False:
+                machine.reset()
+            return
+
+        if 'GET /data.json ' in res:
+            f = open('data.json', "r")
+            content = f.read()
             f.close()
+            await writer.awrite("HTTP/1.0 200 OK\r\n\r\n" + content + "\r\n")
+            await writer.aclose()
+            return
 
-        await writer.awrite("HTTP/1.0 201 OK\r\n\r\n" + ujson.dumps(res_json) + "\r\n")
-        await writer.aclose()
-        if error == False:
-            machine.reset()
-        return
+        if 'GET /min.css ' in res:
+            f = open('min.css', "r")
+            content = f.read()
+            f.close()
+            await writer.awrite("HTTP/1.0 200 OK\r\n\r\n" + content + "\r\n")
+            await writer.aclose()
+            return
 
-    if 'GET /data.json ' in res:
-        f = open('data.json', "r")
-        content = f.read()
-        f.close()
-        await writer.awrite("HTTP/1.0 200 OK\r\n\r\n" + content + "\r\n")
-        await writer.aclose()
-        return
+        if 'GET /main.js ' in res:
+            f = open('main.js', "r")
+            content = f.read()
+            f.close()
+            await writer.awrite("HTTP/1.0 200 OK\r\n\r\n" + content + "\r\n")
+            await writer.aclose()
+            return
 
-    if 'GET /min.css ' in res:
-        f = open('min.css', "r")
-        content = f.read()
-        f.close()
-        await writer.awrite("HTTP/1.0 200 OK\r\n\r\n" + content + "\r\n")
-        await writer.aclose()
-        return
-
-    if 'GET /main.js ' in res:
-        f = open('main.js', "r")
-        content = f.read()
-        f.close()
-        await writer.awrite("HTTP/1.0 200 OK\r\n\r\n" + content + "\r\n")
-        await writer.aclose()
-        return
-
-    if 'GET / ' in res:
-        f = open('index.html', "r")
-        content = f.read()
-        f.close()
-        await writer.awrite("HTTP/1.0 200 OK\r\n\r\n" + content + "\r\n")
-        await writer.aclose()
-        return
+        if 'GET / ' in res:
+            f = open('index.html', "r")
+            content = f.read()
+            f.close()
+            await writer.awrite("HTTP/1.0 200 OK\r\n\r\n" + content + "\r\n")
+            await writer.aclose()
+            return
 
 
 loop = asyncio.get_event_loop()
