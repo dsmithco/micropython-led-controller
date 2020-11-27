@@ -28,6 +28,7 @@ async def run_steps(data, count=0):
 
     # Loop through the steps in the data object
     while True:
+        data = get_data()
         steps = data['steps']
         for i, step in enumerate(steps):
 
@@ -128,7 +129,8 @@ async def serve(reader, writer):
             await writer.awrite("HTTP/1.0 201 OK\r\n\r\n" + ujson.dumps(res_json) + "\r\n")
             await writer.aclose()
             if error == False:
-                machine.reset()
+                # machine.softreset()
+                break
             return
 
         if 'GET /data.json ' in res:
