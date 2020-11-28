@@ -117,7 +117,7 @@ async def serve(reader, writer):
         await writer.awrite("HTTP/1.0 201 OK\r\n\r\n" + ujson.dumps(res_json) + "\r\n")
         await writer.aclose()
         if error == False:
-            # machine.reset()
+            machine.reset()
             return
         return
 
