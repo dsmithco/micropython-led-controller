@@ -9,10 +9,13 @@ def get_data(data_file='data.json'):
     return data
 
 data = get_data()
-np = neopixel.NeoPixel(machine.Pin(0), data['led_length'])
+# Pin 0 has issues will initial white color
+pin = 14
+np = neopixel.NeoPixel(machine.Pin(pin), data['led_length'])
 
 # Make some colors show up
 async def startup():
+    
     await run_steps(data)
 
 def set_color(step1_color_arr):
@@ -21,7 +24,6 @@ def set_color(step1_color_arr):
     np.write()
 
 async def run_steps(data, count=0):
-    set_color([0,0,0])
 
     while True:
         steps = data['steps']
